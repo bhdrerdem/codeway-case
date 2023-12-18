@@ -159,7 +159,7 @@ export class CodewayInfraStack extends Stack {
         );
 
         backendCont.addPortMappings({
-            containerPort: 3001,
+            containerPort: props!.backendPort,
             protocol: ecs.Protocol.TCP,
         });
 
@@ -199,12 +199,12 @@ export class CodewayInfraStack extends Stack {
             "backendTargetGroup",
             {
                 vpc,
-                port: 3001,
+                port: props!.backendPort,
                 protocol: ApplicationProtocol.HTTP,
                 targetType: TargetType.IP,
                 healthCheck: {
                     path: "/health",
-                    port: "3001",
+                    port: props!.backendPort.toString(),
                 },
             }
         );

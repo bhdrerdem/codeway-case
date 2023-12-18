@@ -19,6 +19,8 @@ export interface CodewayConfig {
     firebaseProjectId: string;
     firebasePrivateKey: string;
     firebaseClientEmail: string;
+    frontendImageUrl: string;
+    backendImageUrl: string;
 }
 
 export const config: CodewayConfig = {
@@ -28,4 +30,6 @@ export const config: CodewayConfig = {
     firebaseProjectId: envOrElse("FIREBASE_PROJECT_ID", ""),
     firebasePrivateKey: envOrElse("FIREBASE_PRIVATE_KEY", ""),
     firebaseClientEmail: envOrElse("FIREBASE_CLIENT_EMAIL", ""),
+    frontendImageUrl: envOrElse("FRONTEND_IMAGE_URL", ""),
+    backendImageUrl: envOrElse("BACKEND_IMAGE_URL", ""),
 };
