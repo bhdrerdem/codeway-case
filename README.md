@@ -168,9 +168,9 @@ Follow these steps to run the app:
 
 To deploy the app to AWS ECS using AWS CDK, follow these steps:
 
-1. **Build the Docker Images:**
+1.  **Build the Docker Images:**
 
-    - Build the Docker image for the frontend, passing all the required environment variables as build arguments:
+    -   Build the Docker image for the frontend, passing all the required environment variables as build arguments:
 
         ```bash
         docker build -t codeway-case-frontend \
@@ -190,22 +190,29 @@ To deploy the app to AWS ECS using AWS CDK, follow these steps:
 
     Replace `your-api-token`, `your-backend-url`, and the Firebase configuration variables (`your-firebase-...`) with the actual values you want to use during the frontend build.
 
-2. **Push the Docker Images to a Container Registry:**
+2.  **Push the Docker Images to a Container Registry:**
 
-    - Push the Docker images for both the frontend and backend to a container registry (e.g., Amazon ECR) to make them available for deployment.
+    -   Push the Docker images for both the frontend and backend to a container registry (e.g., Amazon ECR) to make them available for deployment.
 
-3. **Deploy Using AWS CDK:**
+3.  **Deploy Using AWS CDK**
 
-    - Deploy the Codeway Case application using AWS CDK. Make sure that pass all backend environment variable into the AWS CDK infrastructure environment variables before deployment for security and configuration.
+    **Additional Environment Variables**
 
-    - Navigate to the `/infra` directory:
+    Before deployment, in addition to all backend environment variables, make sure to set the following environment to environment variables under `/infra`:
 
-        ```bash.
-        cd infra
-        ```
+    -   `FRONTEND_IMAGE_URL`: URL of the frontend application's Docker image.
+    -   `BACKEND_IMAGE_URL`: URL of the backend application's Docker image.
 
-    - Deploy the Codeway Case application using AWS CDK:
+    **Deployment Steps**
 
-        ```bash
-        cdk deploy
-        ```
+    -   Navigate to the `/infra` Directory:
+
+    ```bash
+    cd infra
+    ```
+
+    -   Deploy
+
+    ```bash
+    cdk deploy
+    ```
