@@ -56,7 +56,7 @@ export default class Api {
             });
         }
 
-        if (await this.service.firebase.doesParameterKeyExist(parameterKey)) {
+        if (await this.doesParameterKeyExist(parameterKey)) {
             return res.status(400).send({
                 error: `Parameter key ${parameterKey} already exist. Choose another key.`,
             });
@@ -109,7 +109,7 @@ export default class Api {
             });
         }
 
-        if (await this.service.firebase.doesParameterKeyExist(parameterKey)) {
+        if (await this.doesParameterKeyExist(parameterKey, configurationId)) {
             return res.status(400).send({
                 error: `Parameter key ${parameterKey} already exist. Choose another key.`,
             });
@@ -220,5 +220,34 @@ export default class Api {
         }
 
         return true;
+    }
+
+    async doesParameterKeyExist(parameterKey, excludedId = null) {
+        try {
+            let result = await this.service.firebase.getByParameterKey(
+                parameterKey
+            );
+
+            if (result.empty) {
+                return false;
+            }
+
+            let exist = false;
+            result.forEach((doc) => {
+                if (excludedId === null || doc.id !== excludedId) {
+                    exist = true;
+                }
+            });
+
+            return exist;
+        } catch (error) {
+            logger.error({
+                err: error?.message,
+                parameterKey: parameterKey,
+                excludedId: excludedId,
+            });
+
+            return true;
+        }
     }
 }

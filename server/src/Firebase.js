@@ -58,27 +58,11 @@ export default class Firebase {
         return doc.data();
     }
 
-    async doesParameterKeyExist(parameterKey) {
-        try {
-            const result = await this.#db
-                .where("parameterKey", "==", parameterKey)
-                .get();
-
-            if (result.empty) {
-                return false;
-            }
-
-            return true;
-        } catch (error) {
-            logger.error(
-                {
-                    error: error?.message,
-                    parameterKey: parameterKey,
-                },
-                "failed to check parameter key"
-            );
-            return false;
-        }
+    async getByParameterKey(parameterKey) {
+        const response = await this.#db
+            .where("parameterKey", "==", parameterKey)
+            .get();
+        return response;
     }
 
     async update(id, configuration) {
