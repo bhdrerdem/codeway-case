@@ -88,12 +88,16 @@ const actions = {
     },
 
     async updateConfig(context, config) {
-        await api.updateConfig(config.id, {
+        const updatedData = await api.updateConfig(config.id, {
             parameterKey: config.parameterKey,
             value: config.value,
             description: config.description,
+            updatedAt: config.updatedAt,
         });
-        context.commit("UPDATE_CONFIG", config);
+        context.commit("UPDATE_CONFIG", {
+            id: config.id,
+            ...updatedData,
+        });
     },
 
     async deleteConfig(context, id) {

@@ -76,8 +76,14 @@ export default class Api {
     }
 
     async updateConfiguration(req, res) {
-        const { parameterKey, value, description } = req.body;
+        const {
+            parameterKey,
+            value,
+            description,
+            updatedAt: clientUpdatedAt,
+        } = req.body;
         const configurationId = req.params.id;
+        const forceUpdate = req.query.force === "true";
 
         if (!configurationId) {
             return res.status(400).send({
@@ -91,36 +97,47 @@ export default class Api {
             });
         }
 
-        const updateData = {};
-
-        updateData.parameterKey = parameterKey;
-        updateData.value = value;
-        updateData.description = description || "";
-        updateData.updatedAt = new Date().getTime();
-
         try {
             const currentData = await this.service.firebase.getById(
                 configurationId
             );
 
-            if (typeof currentData.updatedAt != "number") {
+            if (
+                typeof currentData.updatedAt != "number" ||
+                typeof clientUpdatedAt != "number"
+            ) {
                 throw new Error("updatedAt field is not valid");
             }
 
-            if (updateData.updatedAt - currentData.updatedAt < 5000) {
-                return res.status(409).send({
-                    error: "Configuration recently updated. Please try again later",
-                });
+            if (!forceUpdate) {
+                if (currentData.updatedAt !== clientUpdatedAt) {
+                    return res.status(409).send({
+                        error: "Configuration recently updated. Please try again later",
+                    });
+                }
             }
 
+            const updateData = {
+                parameterKey: parameterKey,
+                value: value,
+                description: description,
+                createdAt: currentData.createdAt,
+                updatedAt: new Date().getTime(),
+            };
+
             await this.service.firebase.update(configurationId, updateData);
-            return res.status(204).send();
+            return res.status(200).send(updateData);
         } catch (error) {
             logger.error(
                 {
                     error: error?.message,
                     id: configurationId,
-                    updateData: updateData,
+                    updateData: {
+                        parameterKey: parameterKey,
+                        value: value,
+                        description: description,
+                        updatedAt: clientUpdatedAt,
+                    },
                 },
                 "Failed to update configuration"
             );

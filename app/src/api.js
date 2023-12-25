@@ -53,7 +53,11 @@ class API {
 
     async updateConfig(id, updateData) {
         try {
-            await this.http.put(`/configurations/${id}`, updateData);
+            const response = await this.http.put(
+                `/configurations/${id}`,
+                updateData
+            );
+            return response.data;
         } catch (error) {
             console.error(error);
             this.handleError(error);
@@ -70,34 +74,34 @@ class API {
     }
 
     handleError(error) {
-        let errorMessage = this.getErrorMessage(error);
+        let err = this.getError(error);
 
-        if (errorMessage.includes("expired")) {
-            errorMessage = "Your session has expired. Please sign in again.";
+        if (err.message.includes("expired")) {
+            err.message = "Your session has expired. Please sign in again.";
         } else if (
-            errorMessage.includes("Fields") &&
-            errorMessage.includes("invalid")
+            err.message.includes("Fields") &&
+            err.message.includes("invalid")
         ) {
-            errorMessage =
+            err.message =
                 "A parameter key or value is invalid. Please provide valid parameters.";
-        } else if (errorMessage.includes("recently updated")) {
-            errorMessage =
+        } else if (err.message.includes("recently updated")) {
+            err.message =
                 "This configuration has been updated recently. Please refresh and try again.";
-        } else if (errorMessage.includes("not found")) {
-            errorMessage =
+        } else if (err.message.includes("not found")) {
+            err.message =
                 "This configuration was not found. Please refresh and try again.";
         } else {
-            errorMessage = "Something went wrong. Please try again.";
+            err.message = "Something went wrong. Please try again.";
         }
 
-        throw new Error(errorMessage);
+        throw err;
     }
 
-    getErrorMessage(error) {
-        if (error?.response?.data?.error) {
-            return error.response.data.error;
-        }
-        return "";
+    getError(error) {
+        return {
+            code: error?.response?.status || 500,
+            message: error?.response?.data?.error || "",
+        };
     }
 }
 
