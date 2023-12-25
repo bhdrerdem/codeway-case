@@ -18,6 +18,10 @@ export default class Api {
         });
 
         this.router.get("/", this.getAllConfigurations.bind(this));
+        this.router.get(
+            "/mobile",
+            this.getAllConfigurationsForMobile.bind(this)
+        );
         this.router.post("/", this.createConfiguration.bind(this));
         this.router.put("/:id", this.updateConfiguration.bind(this));
         this.router.delete("/:id", this.deleteConfiguration.bind(this));
@@ -26,17 +30,27 @@ export default class Api {
     }
 
     async getAllConfigurations(req, res) {
-        const isMobile = req.query.mobile == "true";
-
         try {
             const result = await this.service.firebase.getAll();
-            const configurations = isMobile ? {} : [];
+            const configurations = [];
             result.forEach((doc) => {
-                if (isMobile) {
-                    configurations[doc.data().parameterKey] = doc.data().value;
-                } else {
-                    configurations.push({ id: doc.id, ...doc.data() });
-                }
+                configurations.push({ id: doc.id, ...doc.data() });
+            });
+            return res.status(200).send(configurations);
+        } catch (error) {
+            logger.error(error, "failed to get configurations");
+            return res.status(500).send({
+                error: "Failed to get configurations.",
+            });
+        }
+    }
+
+    async getAllConfigurationsForMobile(req, res) {
+        try {
+            const result = await this.service.firebase.getAll();
+            const configurations = {};
+            result.forEach((doc) => {
+                configurations[doc.data().parameterKey] = doc.data().value;
             });
             return res.status(200).send(configurations);
         } catch (error) {
