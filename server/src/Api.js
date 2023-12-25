@@ -26,13 +26,19 @@ export default class Api {
     }
 
     async getAllConfigurations(req, res) {
+        const isMobile = req.query.mobile == "true";
+
         try {
             const result = await this.service.firebase.getAll();
-            const items = [];
+            const configurations = isMobile ? {} : [];
             result.forEach((doc) => {
-                items.push({ id: doc.id, ...doc.data() });
+                if (isMobile) {
+                    configurations[doc.data().parameterKey] = doc.data().value;
+                } else {
+                    configurations.push({ id: doc.id, ...doc.data() });
+                }
             });
-            return res.status(200).send(items);
+            return res.status(200).send(configurations);
         } catch (error) {
             logger.error(error, "failed to get configurations");
             return res.status(500).send({
@@ -47,6 +53,12 @@ export default class Api {
         if (!this.areInputsValid(parameterKey, value)) {
             return res.status(400).send({
                 error: "Fields 'parameterKey' or 'value' invalid.",
+            });
+        }
+
+        if (await this.service.firebase.doesParameterKeyExist(parameterKey)) {
+            return res.status(400).send({
+                error: `Parameter key ${parameterKey} already exist. Choose another key.`,
             });
         }
 
@@ -94,6 +106,12 @@ export default class Api {
         if (!this.areInputsValid(parameterKey, value)) {
             return res.status(400).send({
                 error: "Fields 'parameterKey' or 'value' invalid.",
+            });
+        }
+
+        if (await this.service.firebase.doesParameterKeyExist(parameterKey)) {
+            return res.status(400).send({
+                error: `Parameter key ${parameterKey} already exist. Choose another key.`,
             });
         }
 

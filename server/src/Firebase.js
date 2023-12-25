@@ -1,5 +1,6 @@
 import firebase from "firebase-admin";
 import { v4 as uuid } from "uuid";
+import logger from "../lib/logger.js";
 
 export default class Firebase {
     #db = null;
@@ -55,6 +56,29 @@ export default class Firebase {
         }
 
         return doc.data();
+    }
+
+    async doesParameterKeyExist(parameterKey) {
+        try {
+            const result = await this.#db
+                .where("parameterKey", "==", parameterKey)
+                .get();
+
+            if (result.empty) {
+                return false;
+            }
+
+            return true;
+        } catch (error) {
+            logger.error(
+                {
+                    error: error?.message,
+                    parameterKey: parameterKey,
+                },
+                "failed to check parameter key"
+            );
+            return false;
+        }
     }
 
     async update(id, configuration) {

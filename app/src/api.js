@@ -90,6 +90,9 @@ class API {
         } else if (err.message.includes("not found")) {
             err.message =
                 "This configuration was not found. Please refresh and try again.";
+        } else if (err.message.includes("already exist")) {
+            err.message =
+                "This parameter key is already exist. Choose another parameter key.";
         } else {
             err.message = "Something went wrong. Please try again.";
         }
